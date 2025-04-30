@@ -1,0 +1,18 @@
+# DataSource Config
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://115.120.224.202:3306/ylipi?useSSL=false&serverTimezone=UTC
+    username: ylipi
+    password: ylipi
+    # 配置连接池信息
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      max-active: 10
+
+# 开启mybatis-plus日志（可查看生成的sql语句）
+# 标准的日志输出，打印到控制台
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
