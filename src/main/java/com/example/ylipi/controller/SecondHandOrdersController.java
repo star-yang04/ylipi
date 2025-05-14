@@ -29,7 +29,8 @@ public class SecondHandOrdersController {
      * 新增订单（下单）
      */
     @PostMapping
-    public Result createOrder(@RequestBody SecondHandOrders order) {
+    public Result createOrder(@RequestBody SecondHandOrders order,
+                              @RequestHeader("Authorization") String token) {
         order.setOrderTime(LocalDateTime.now());
         order.setStatus("pending"); // 初始状态
         boolean saved = secondHandOrdersService.save(order);
@@ -40,7 +41,8 @@ public class SecondHandOrdersController {
      * 更新订单状态（如完成、取消）
      */
     @PatchMapping("/status/{id}")
-    public Result updateStatus(@PathVariable Integer id, @RequestParam String status) {
+    public Result updateStatus(@PathVariable Integer id, @RequestParam String status,
+                               @RequestHeader("Authorization") String token) {
         SecondHandOrders order = secondHandOrdersService.getById(id);
         if (order == null) {
             return Result.error("订单不存在");
@@ -54,7 +56,8 @@ public class SecondHandOrdersController {
      * 根据订单ID查询订单详情
      */
     @GetMapping("/{id}")
-    public Result getOrderById(@PathVariable Integer id) {
+    public Result getOrderById(@PathVariable Integer id,
+                               @RequestHeader("Authorization") String token) {
         SecondHandOrders order = secondHandOrdersService.getById(id);
         return order != null ? Result.success(order) : Result.error("订单不存在");
     }
@@ -63,7 +66,8 @@ public class SecondHandOrdersController {
      * 删除订单
      */
     @DeleteMapping("/{id}")
-    public Result deleteOrder(@PathVariable Integer id) {
+    public Result deleteOrder(@PathVariable Integer id,
+                              @RequestHeader("Authorization") String token) {
         boolean removed = secondHandOrdersService.removeById(id);
         return removed ? Result.success("订单删除成功") : Result.error("删除失败");
     }
@@ -74,7 +78,8 @@ public class SecondHandOrdersController {
     @GetMapping("/buyer/{buyerId}")
     public Result listOrdersByBuyer(@PathVariable Integer buyerId,
                                     @RequestParam(defaultValue = "1") int pageNum,
-                                    @RequestParam(defaultValue = "10") int pageSize) {
+                                    @RequestParam(defaultValue = "10") int pageSize,
+                                    @RequestHeader("Authorization") String token) {
         Page<SecondHandOrders> page = new Page<>(pageNum, pageSize);
         QueryWrapper<SecondHandOrders> wrapper = new QueryWrapper<>();
         wrapper.eq("buyer_id", buyerId).orderByDesc("order_time");
@@ -88,7 +93,8 @@ public class SecondHandOrdersController {
     @GetMapping("/seller/{sellerId}")
     public Result listOrdersBySeller(@PathVariable Integer sellerId,
                                      @RequestParam(defaultValue = "1") int pageNum,
-                                     @RequestParam(defaultValue = "10") int pageSize) {
+                                     @RequestParam(defaultValue = "10") int pageSize,
+                                     @RequestHeader("Authorization") String token) {
         Page<SecondHandOrders> page = new Page<>(pageNum, pageSize);
         QueryWrapper<SecondHandOrders> wrapper = new QueryWrapper<>();
         wrapper.eq("seller_id", sellerId).orderByDesc("order_time");

@@ -32,7 +32,8 @@ public class AuditLogsController {
     public Result listAuditLogs(@RequestParam(defaultValue = "1") int pageNum,
                                 @RequestParam(defaultValue = "10") int pageSize,
                                 @RequestParam(required = false) Integer adminId,
-                                @RequestParam(required = false) String targetType) {
+                                @RequestParam(required = false) String targetType,
+                                @RequestHeader("Authorization") String token) {
         Page<AuditLogs> page = new Page<>(pageNum, pageSize);
         QueryWrapper<AuditLogs> wrapper = new QueryWrapper<>();
 
@@ -52,7 +53,8 @@ public class AuditLogsController {
      * 添加一条审计日志（通常由后台自动记录）
      */
     @PostMapping
-    public Result addAuditLog(@RequestBody AuditLogs auditLog) {
+    public Result addAuditLog(@RequestBody AuditLogs auditLog,
+                              @RequestHeader("Authorization") String token) {
         auditLog.setActionTime(LocalDateTime.now());
         boolean saved = auditLogsService.save(auditLog);
         return saved ? Result.success("日志记录成功") : Result.error("日志记录失败");
@@ -62,7 +64,8 @@ public class AuditLogsController {
      * 根据日志ID获取审计日志详情
      */
     @GetMapping("/{id}")
-    public Result getAuditLogById(@PathVariable Integer id) {
+    public Result getAuditLogById(@PathVariable Integer id,
+                                  @RequestHeader("Authorization") String token) {
         AuditLogs log = auditLogsService.getById(id);
         return log != null ? Result.success(log) : Result.error("日志不存在");
     }
@@ -71,7 +74,8 @@ public class AuditLogsController {
      * 删除某条审计日志（通常不建议暴露，保留接口以备管理）
      */
     @DeleteMapping("/{id}")
-    public Result deleteAuditLog(@PathVariable Integer id) {
+    public Result deleteAuditLog(@PathVariable Integer id,
+                                 @RequestHeader("Authorization") String token) {
         boolean removed = auditLogsService.removeById(id);
         return removed ? Result.success("日志删除成功") : Result.error("删除失败");
     }

@@ -29,7 +29,8 @@ public class SensitiveWordsController {
      * 新增敏感词
      */
     @PostMapping
-    public Result addWord(@RequestBody SensitiveWords word) {
+    public Result addWord(@RequestBody SensitiveWords word,
+                          @RequestHeader("Authorization") String token) {
         word.setCreateTime(LocalDateTime.now());
         boolean saved = sensitiveWordsService.save(word);
         return saved ? Result.success("敏感词添加成功") : Result.error("敏感词添加失败");
@@ -39,7 +40,8 @@ public class SensitiveWordsController {
      * 删除敏感词
      */
     @DeleteMapping("/{id}")
-    public Result deleteWord(@PathVariable Integer id) {
+    public Result deleteWord(@PathVariable Integer id,
+                             @RequestHeader("Authorization") String token) {
         boolean removed = sensitiveWordsService.removeById(id);
         return removed ? Result.success("敏感词删除成功") : Result.error("敏感词删除失败");
     }
@@ -48,7 +50,8 @@ public class SensitiveWordsController {
      * 修改敏感词内容
      */
     @PutMapping
-    public Result updateWord(@RequestBody SensitiveWords word) {
+    public Result updateWord(@RequestBody SensitiveWords word,
+                             @RequestHeader("Authorization") String token) {
         boolean updated = sensitiveWordsService.updateById(word);
         return updated ? Result.success("敏感词更新成功") : Result.error("敏感词更新失败");
     }
@@ -58,7 +61,8 @@ public class SensitiveWordsController {
      */
     @GetMapping
     public Result listWords(@RequestParam(defaultValue = "1") int pageNum,
-                            @RequestParam(defaultValue = "10") int pageSize) {
+                            @RequestParam(defaultValue = "10") int pageSize,
+                            @RequestHeader("Authorization") String token) {
         Page<SensitiveWords> page = new Page<>(pageNum, pageSize);
         sensitiveWordsService.page(page);
         return Result.success(page);
@@ -70,7 +74,8 @@ public class SensitiveWordsController {
     @GetMapping("/search")
     public Result searchWord(@RequestParam String keyword,
                              @RequestParam(defaultValue = "1") int pageNum,
-                             @RequestParam(defaultValue = "10") int pageSize) {
+                             @RequestParam(defaultValue = "10") int pageSize,
+                             @RequestHeader("Authorization") String token) {
         Page<SensitiveWords> page = new Page<>(pageNum, pageSize);
         QueryWrapper<SensitiveWords> wrapper = new QueryWrapper<>();
         wrapper.like("word", keyword);
@@ -82,7 +87,8 @@ public class SensitiveWordsController {
      * 获取敏感词详情（根据ID）
      */
     @GetMapping("/{id}")
-    public Result getWord(@PathVariable Integer id) {
+    public Result getWord(@PathVariable Integer id,
+                          @RequestHeader("Authorization") String token) {
         SensitiveWords word = sensitiveWordsService.getById(id);
         return word != null ? Result.success(word) : Result.error("敏感词不存在");
     }

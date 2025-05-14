@@ -29,7 +29,8 @@ public class MerchantOrdersController {
      * 添加订单（下单）
      */
     @PostMapping
-    public Result createOrder(@RequestBody MerchantOrders order) {
+    public Result createOrder(@RequestBody MerchantOrders order,
+                              @RequestHeader("Authorization") String token) {
         order.setOrderTime(LocalDateTime.now());
         order.setStatus("待处理");
         boolean saved = merchantOrdersService.save(order);
@@ -41,7 +42,8 @@ public class MerchantOrdersController {
      */
     @GetMapping
     public Result getAllOrders(@RequestParam(defaultValue = "1") int pageNum,
-                               @RequestParam(defaultValue = "10") int pageSize) {
+                               @RequestParam(defaultValue = "10") int pageSize,
+                               @RequestHeader("Authorization") String token) {
         Page<MerchantOrders> page = new Page<>(pageNum, pageSize);
         merchantOrdersService.page(page, new QueryWrapper<MerchantOrders>().orderByDesc("order_time"));
         return Result.success(page);
@@ -53,7 +55,8 @@ public class MerchantOrdersController {
     @GetMapping("/buyer/{buyerId}")
     public Result getOrdersByBuyer(@PathVariable Integer buyerId,
                                    @RequestParam(defaultValue = "1") int pageNum,
-                                   @RequestParam(defaultValue = "10") int pageSize) {
+                                   @RequestParam(defaultValue = "10") int pageSize,
+                                   @RequestHeader("Authorization") String token) {
         Page<MerchantOrders> page = new Page<>(pageNum, pageSize);
         QueryWrapper<MerchantOrders> wrapper = new QueryWrapper<>();
         wrapper.eq("buyer_id", buyerId).orderByDesc("order_time");
@@ -67,7 +70,8 @@ public class MerchantOrdersController {
     @GetMapping("/merchant/{merchantId}")
     public Result getOrdersByMerchant(@PathVariable Integer merchantId,
                                       @RequestParam(defaultValue = "1") int pageNum,
-                                      @RequestParam(defaultValue = "10") int pageSize) {
+                                      @RequestParam(defaultValue = "10") int pageSize,
+                                      @RequestHeader("Authorization") String token) {
         Page<MerchantOrders> page = new Page<>(pageNum, pageSize);
         QueryWrapper<MerchantOrders> wrapper = new QueryWrapper<>();
         wrapper.eq("merchant_id", merchantId).orderByDesc("order_time");
@@ -79,7 +83,8 @@ public class MerchantOrdersController {
      * 根据订单ID获取订单详情
      */
     @GetMapping("/{id}")
-    public Result getOrderById(@PathVariable Integer id) {
+    public Result getOrderById(@PathVariable Integer id,
+                               @RequestHeader("Authorization") String token) {
         MerchantOrders order = merchantOrdersService.getById(id);
         return order != null ? Result.success(order) : Result.error("订单不存在");
     }
@@ -88,7 +93,8 @@ public class MerchantOrdersController {
      * 修改订单状态（如：已发货、已完成、已取消）
      */
     @PatchMapping("/status/{id}")
-    public Result updateOrderStatus(@PathVariable Integer id, @RequestBody String status) {
+    public Result updateOrderStatus(@PathVariable Integer id, @RequestBody String status,
+                                    @RequestHeader("Authorization") String token) {
         MerchantOrders order = new MerchantOrders();
         order.setOrderId(id);
         order.setStatus(status);
@@ -100,7 +106,8 @@ public class MerchantOrdersController {
      * 删除订单（仅管理员或商家可操作）
      */
     @DeleteMapping("/{id}")
-    public Result deleteOrder(@PathVariable Integer id) {
+    public Result deleteOrder(@PathVariable Integer id,
+                              @RequestHeader("Authorization") String token) {
         boolean removed = merchantOrdersService.removeById(id);
         return removed ? Result.success("订单已删除") : Result.error("删除失败");
     }

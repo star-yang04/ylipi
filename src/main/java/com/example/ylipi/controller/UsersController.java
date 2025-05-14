@@ -1,5 +1,4 @@
 package com.example.ylipi.controller;
-
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.ylipi.common.Result;
@@ -19,14 +18,16 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.constraints.Pattern;
-
+import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+
 
 /**
  * <p>
@@ -60,9 +61,8 @@ public class UsersController {
             @RequestParam @Pattern(regexp = "^\\S{5,16}$") String username,
             @RequestParam @Pattern(regexp = "^\\S{5,20}$") String password,
             @RequestParam String schoolNumber,
-            @RequestParam String schoolPassword) {
-
-
+            @RequestParam String schoolPassword,
+            @RequestParam("file") MultipartFile file) throws IOException {
 
         // 检查用户名是否已存在
         Users u = usersService.findByUserName(username);
@@ -87,8 +87,13 @@ public class UsersController {
             return Result.error("获取用户类型失败");
         }
 
+        /**
+         * 上传头像
+         */
+        String avatarUrl= usersService.uploadAvatar(file);
+
         // 注册用户
-        usersService.register(username, password,schoolNumber,schoolPassword, userType);
+        usersService.register(username,password,schoolNumber,schoolPassword, userType,avatarUrl);
         return Result.success();
     }
 
@@ -234,6 +239,17 @@ public class UsersController {
     }
 
     /**
+     * 通过用户名查询用户
+     */
+    @GetMapping("/getByUsername")
+    public Result getByUsername(@RequestParam String username,
+                                @RequestHeader("Authorization") String token) {
+        Users user = usersService.getBaseMapper().findByUserName(username);
+
+        return Result.success(user);
+    }
+
+    /**
      * 查询所有用户
      */
     @GetMapping("/list")
@@ -348,7 +364,9 @@ public class UsersController {
      * 修改账户余额
      */
     @PatchMapping("/balance/{id}")
-    public Result updateBalance(@PathVariable Integer id, @RequestParam BigDecimal amount, @RequestHeader("Authorization") String token) {
+    public Result updateBalance(@PathVariable Integer id,
+                                @RequestParam BigDecimal amount,
+                                @RequestHeader("Authorization") String token) {
         // 从 Token 中解析出用户信息
         Map<String, Object> claims = JwtUtil.parseToken(token);
         Integer userId = (Integer) claims.get("id");
@@ -366,7 +384,8 @@ public class UsersController {
      * 批量删除用户
      */
     @DeleteMapping("/batchDelete")
-    public Result batchDeleteUsers(@RequestBody List<Integer> ids, @RequestHeader("Authorization") String token) {
+    public Result batchDeleteUsers(@RequestBody List<Integer> ids,
+                                   @RequestHeader("Authorization") String token) {
         // 从 Token 中解析出用户信息
         Map<String, Object> claims = JwtUtil.parseToken(token);
         Integer userId = (Integer) claims.get("id");
@@ -380,7 +399,9 @@ public class UsersController {
      * 修改密码（前提：必须加密存储密码）
      */
     @PatchMapping("/password/{id}")
-    public Result updatePassword(@PathVariable Integer id, @RequestParam String newPassword, @RequestHeader("Authorization") String token) {
+    public Result updatePassword(@PathVariable Integer id,
+                                 @RequestParam String newPassword,
+                                 @RequestHeader("Authorization") String token) {
         // 从 Token 中解析出用户信息
         Map<String, Object> claims = JwtUtil.parseToken(token);
         Integer userId = (Integer) claims.get("id");
@@ -399,7 +420,8 @@ public class UsersController {
      * 校验用户名是否存在
      */
     @GetMapping("/checkUsername")
-    public Result checkUsernameExist(@RequestParam String username, @RequestHeader("Authorization") String token) {
+    public Result checkUsernameExist(@RequestParam String username,
+                                     @RequestHeader("Authorization") String token) {
         // 从 Token 中解析出用户信息
         Map<String, Object> claims = JwtUtil.parseToken(token);
         Integer userId = (Integer) claims.get("id");
@@ -415,7 +437,8 @@ public class UsersController {
      * 导出用户数据为 Excel（简化版本）
      */
     @GetMapping("/export")
-    public void exportUsers(HttpServletResponse response, @RequestHeader("Authorization") String token) {
+    public void exportUsers(HttpServletResponse response,
+                            @RequestHeader("Authorization") String token) {
         // 从 Token 中解析出用户信息
         Map<String, Object> claims = JwtUtil.parseToken(token);
         Integer userId = (Integer) claims.get("id");
@@ -449,6 +472,11 @@ public class UsersController {
             e.printStackTrace();
         }
     }
+
+
+
+
+
 
 }
 

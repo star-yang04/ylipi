@@ -29,7 +29,8 @@ public class SecondHandProductsController {
      * 新增二手商品
      */
     @PostMapping
-    public Result addProduct(@RequestBody SecondHandProducts product) {
+    public Result addProduct(@RequestBody SecondHandProducts product,
+                             @RequestHeader("Authorization") String token) {
         product.setCreateTime(LocalDateTime.now());
         product.setUpdateTime(LocalDateTime.now());
         product.setStatus("available"); // 默认上架
@@ -41,7 +42,8 @@ public class SecondHandProductsController {
      * 修改商品信息
      */
     @PutMapping
-    public Result updateProduct(@RequestBody SecondHandProducts product) {
+    public Result updateProduct(@RequestBody SecondHandProducts product,
+                                @RequestHeader("Authorization") String token) {
         product.setUpdateTime(LocalDateTime.now());
         boolean updated = secondHandProductsService.updateById(product);
         return updated ? Result.success("更新成功") : Result.error("更新失败");
@@ -51,7 +53,8 @@ public class SecondHandProductsController {
      * 删除商品（根据id）
      */
     @DeleteMapping("/{id}")
-    public Result deleteProduct(@PathVariable Integer id) {
+    public Result deleteProduct(@PathVariable Integer id,
+                                @RequestHeader("Authorization") String token) {
         boolean removed = secondHandProductsService.removeById(id);
         return removed ? Result.success("删除成功") : Result.error("删除失败");
     }
@@ -60,7 +63,8 @@ public class SecondHandProductsController {
      * 根据id查询单个商品
      */
     @GetMapping("/{id}")
-    public Result getProduct(@PathVariable Integer id) {
+    public Result getProduct(@PathVariable Integer id,
+                             @RequestHeader("Authorization") String token) {
         SecondHandProducts product = secondHandProductsService.getById(id);
         return product != null ? Result.success(product) : Result.error("未找到该商品");
     }
@@ -70,7 +74,8 @@ public class SecondHandProductsController {
      */
     @GetMapping("/all")
     public Result listProducts(@RequestParam(defaultValue = "1") int pageNum,
-                               @RequestParam(defaultValue = "10") int pageSize) {
+                               @RequestParam(defaultValue = "10") int pageSize,
+                               @RequestHeader("Authorization") String token) {
         Page<SecondHandProducts> page = new Page<>(pageNum, pageSize);
         secondHandProductsService.page(page, new QueryWrapper<SecondHandProducts>().orderByDesc("create_time"));
         return Result.success(page);
@@ -82,7 +87,8 @@ public class SecondHandProductsController {
     @GetMapping("/seller/{sellerId}")
     public Result listBySeller(@PathVariable Integer sellerId,
                                @RequestParam(defaultValue = "1") int pageNum,
-                               @RequestParam(defaultValue = "10") int pageSize) {
+                               @RequestParam(defaultValue = "10") int pageSize,
+                               @RequestHeader("Authorization") String token) {
         Page<SecondHandProducts> page = new Page<>(pageNum, pageSize);
         QueryWrapper<SecondHandProducts> wrapper = new QueryWrapper<>();
         wrapper.eq("seller_id", sellerId).orderByDesc("create_time");
@@ -94,7 +100,9 @@ public class SecondHandProductsController {
      * 修改商品上架状态
      */
     @PatchMapping("/status/{id}")
-    public Result updateStatus(@PathVariable Integer id, @RequestParam String status) {
+    public Result updateStatus(@PathVariable Integer id,
+                               @RequestParam String status,
+                               @RequestHeader("Authorization") String token) {
         SecondHandProducts product = secondHandProductsService.getById(id);
         if (product == null) {
             return Result.error("商品不存在");

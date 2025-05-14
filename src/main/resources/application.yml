@@ -10,6 +10,7 @@ spring:
     druid:
       max-active: 10
 
+
   data:
     redis:
       host: 115.120.224.202
@@ -23,3 +24,6 @@ mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
+file:
+  upload-path: /opt/uploads/avatars/   # Linux服务器上的真实保存目录
+  access-url-prefix: http://115.120.224.202/opt/uploads/avatars/

@@ -29,7 +29,8 @@ public class TaskAcceptanceController {
      * 添加任务接收记录
      */
     @PostMapping
-    public Result addAcceptance(@RequestBody TaskAcceptance acceptance) {
+    public Result addAcceptance(@RequestBody TaskAcceptance acceptance,
+                                @RequestHeader("Authorization") String token) {
         acceptance.setAcceptTime(LocalDateTime.now());
         boolean saved = taskAcceptanceService.save(acceptance);
         return saved ? Result.success("任务接收记录添加成功") : Result.error("添加失败");
@@ -39,7 +40,8 @@ public class TaskAcceptanceController {
      * 更新任务接收记录
      */
     @PutMapping
-    public Result updateAcceptance(@RequestBody TaskAcceptance acceptance) {
+    public Result updateAcceptance(@RequestBody TaskAcceptance acceptance,
+                                   @RequestHeader("Authorization") String token) {
         boolean updated = taskAcceptanceService.updateById(acceptance);
         return updated ? Result.success("任务接收记录更新成功") : Result.error("更新失败");
     }
@@ -48,7 +50,8 @@ public class TaskAcceptanceController {
      * 删除任务接收记录
      */
     @DeleteMapping("/{id}")
-    public Result deleteAcceptance(@PathVariable Integer id) {
+    public Result deleteAcceptance(@PathVariable Integer id,
+                                   @RequestHeader("Authorization") String token) {
         boolean deleted = taskAcceptanceService.removeById(id);
         return deleted ? Result.success("任务接收记录删除成功") : Result.error("删除失败");
     }
@@ -57,7 +60,8 @@ public class TaskAcceptanceController {
      * 根据 ID 查询任务接收记录
      */
     @GetMapping("/{id}")
-    public Result getById(@PathVariable Integer id) {
+    public Result getById(@PathVariable Integer id,
+                          @RequestHeader("Authorization") String token) {
         TaskAcceptance acceptance = taskAcceptanceService.getById(id);
         return acceptance != null ? Result.success(acceptance) : Result.error("记录未找到");
     }
@@ -67,7 +71,8 @@ public class TaskAcceptanceController {
      */
     @GetMapping
     public Result listAll(@RequestParam(defaultValue = "1") int pageNum,
-                          @RequestParam(defaultValue = "10") int pageSize) {
+                          @RequestParam(defaultValue = "10") int pageSize,
+                          @RequestHeader("Authorization") String token) {
         Page<TaskAcceptance> page = new Page<>(pageNum, pageSize);
         taskAcceptanceService.page(page);
         return Result.success(page);
@@ -81,7 +86,8 @@ public class TaskAcceptanceController {
                          @RequestParam(required = false) Integer accepterId,
                          @RequestParam(required = false) String status,
                          @RequestParam(defaultValue = "1") int pageNum,
-                         @RequestParam(defaultValue = "10") int pageSize) {
+                         @RequestParam(defaultValue = "10") int pageSize,
+                         @RequestHeader("Authorization") String token) {
 
         QueryWrapper<TaskAcceptance> wrapper = new QueryWrapper<>();
         if (taskId != null) wrapper.eq("task_id", taskId);

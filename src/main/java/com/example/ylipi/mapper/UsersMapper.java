@@ -19,9 +19,9 @@ public interface UsersMapper extends BaseMapper<Users> {
     @Select("select * from users where username=#{username}")
     Users findByUserName(String username);
 
-    @Insert("insert into users(username,password,role,school_number,school_password,user_type,create_time,update_time)" +
-            "values (#{username},#{password},'campus',#{schoolNumber},#{schoolPassword},#{userType},now(),now())")
-    void add(String username, String password,String schoolNumber, String schoolPassword, String userType);
+    @Insert("insert into users(username,password,role,school_number,school_password,user_type,create_time,update_time,avatar_url)" +
+            "values (#{username},#{password},'campus',#{schoolNumber},#{schoolPassword},#{userType},now(),now(),#{avatar_url})")
+    void add(String username, String password,String schoolNumber, String schoolPassword, String userType, String avatarUrl);
 
     @Select("select count(*) from usst where school_number=#{schoolNumber} and school_password=#{schoolPassword}")
     int countBySchoolNumberAndPassword(String schoolNumber, String schoolPassword);

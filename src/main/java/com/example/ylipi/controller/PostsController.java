@@ -30,7 +30,8 @@ public class PostsController {
      * 根据帖子ID获取帖子详情
      */
     @GetMapping("/{id}")
-    public Result getPostById(@PathVariable Integer id) {
+    public Result getPostById(@PathVariable Integer id,
+                              @RequestHeader("Authorization") String token) {
         Posts post = postsService.getById(id);
         return post != null ? Result.success(post) : Result.error("帖子不存在");
     }
@@ -41,7 +42,8 @@ public class PostsController {
     @GetMapping("/list")
     public Result listPosts(@RequestParam(defaultValue = "1") int pageNum,
                             @RequestParam(defaultValue = "10") int pageSize,
-                            @RequestParam(required = false) String category) {
+                            @RequestParam(required = false) String category,
+                            @RequestHeader("Authorization") String token) {
         Page<Posts> page = new Page<>(pageNum, pageSize);
         QueryWrapper<Posts> wrapper = new QueryWrapper<>();
         if (category != null && !category.isEmpty()) {
@@ -56,7 +58,8 @@ public class PostsController {
      * 新增帖子
      */
     @PostMapping
-    public Result addPost(@RequestBody Posts post) {
+    public Result addPost(@RequestBody Posts post,
+                          @RequestHeader("Authorization") String token) {
         post.setCreateTime(LocalDateTime.now());
         post.setUpdateTime(LocalDateTime.now());
         post.setStatus("正常");
@@ -68,7 +71,8 @@ public class PostsController {
      * 修改帖子
      */
     @PutMapping
-    public Result updatePost(@RequestBody Posts post) {
+    public Result updatePost(@RequestBody Posts post,
+                             @RequestHeader("Authorization") String token) {
         post.setUpdateTime(LocalDateTime.now());
         boolean updated = postsService.updateById(post);
         return updated ? Result.success("更新成功") : Result.error("更新失败");
@@ -78,7 +82,8 @@ public class PostsController {
      * 删除帖子
      */
     @DeleteMapping("/{id}")
-    public Result deletePost(@PathVariable Integer id) {
+    public Result deletePost(@PathVariable Integer id,
+                             @RequestHeader("Authorization") String token) {
         boolean removed = postsService.removeById(id);
         return removed ? Result.success("删除成功") : Result.error("删除失败");
     }
@@ -88,7 +93,8 @@ public class PostsController {
      */
     @PatchMapping("/status/{id}")
     public Result updatePostStatus(@PathVariable Integer id,
-                                   @RequestParam String status) {
+                                   @RequestParam String status,
+                                   @RequestHeader("Authorization") String token) {
         Posts post = new Posts();
         post.setPostId(id);
         post.setStatus(status);
@@ -101,7 +107,8 @@ public class PostsController {
      * 获取某个用户发布的所有帖子
      */
     @GetMapping("/user/{userId}")
-    public Result getPostsByUserId(@PathVariable Integer userId) {
+    public Result getPostsByUserId(@PathVariable Integer userId,
+                                   @RequestHeader("Authorization") String token) {
         QueryWrapper<Posts> wrapper = new QueryWrapper<>();
         wrapper.eq("user_id", userId).orderByDesc("create_time");
         List<Posts> list = postsService.list(wrapper);

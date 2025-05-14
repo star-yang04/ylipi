@@ -29,7 +29,8 @@ public class PrivateMessagesController {
      * 发送私信
      */
     @PostMapping
-    public Result sendMessage(@RequestBody PrivateMessages message) {
+    public Result sendMessage(@RequestBody PrivateMessages message,
+                              @RequestHeader("Authorization") String token) {
         message.setSendTime(LocalDateTime.now());
         boolean saved = privateMessagesService.save(message);
         return saved ? Result.success("发送成功") : Result.error("发送失败");
@@ -42,7 +43,8 @@ public class PrivateMessagesController {
     public Result getChatMessages(@RequestParam Integer userId1,
                                   @RequestParam Integer userId2,
                                   @RequestParam(defaultValue = "1") int pageNum,
-                                  @RequestParam(defaultValue = "10") int pageSize) {
+                                  @RequestParam(defaultValue = "10") int pageSize,
+                                  @RequestHeader("Authorization") String token) {
         Page<PrivateMessages> page = new Page<>(pageNum, pageSize);
         QueryWrapper<PrivateMessages> wrapper = new QueryWrapper<>();
         wrapper
@@ -59,7 +61,8 @@ public class PrivateMessagesController {
     @GetMapping("/received/{receiverId}")
     public Result getReceivedMessages(@PathVariable Integer receiverId,
                                       @RequestParam(defaultValue = "1") int pageNum,
-                                      @RequestParam(defaultValue = "10") int pageSize) {
+                                      @RequestParam(defaultValue = "10") int pageSize,
+                                      @RequestHeader("Authorization") String token) {
         Page<PrivateMessages> page = new Page<>(pageNum, pageSize);
         QueryWrapper<PrivateMessages> wrapper = new QueryWrapper<>();
         wrapper.eq("receiver_id", receiverId).orderByDesc("send_time");
@@ -71,7 +74,8 @@ public class PrivateMessagesController {
      * 删除一条私信（仅发信人或管理员可调用）
      */
     @DeleteMapping("/{id}")
-    public Result deleteMessage(@PathVariable Integer id) {
+    public Result deleteMessage(@PathVariable Integer id,
+                                @RequestHeader("Authorization") String token) {
         boolean removed = privateMessagesService.removeById(id);
         return removed ? Result.success("删除成功") : Result.error("删除失败");
     }

@@ -31,7 +31,8 @@ public class CommentsController {
     @GetMapping("/post/{postId}")
     public Result getCommentsByPostId(@PathVariable Integer postId,
                                       @RequestParam(defaultValue = "1") int pageNum,
-                                      @RequestParam(defaultValue = "10") int pageSize) {
+                                      @RequestParam(defaultValue = "10") int pageSize,
+                                      @RequestHeader("Authorization") String token) {
         Page<Comments> page = new Page<>(pageNum, pageSize);
         QueryWrapper<Comments> wrapper = new QueryWrapper<>();
         wrapper.eq("post_id", postId).orderByAsc("create_time"); // 按时间升序排列
@@ -43,7 +44,8 @@ public class CommentsController {
      * 根据评论ID获取单条评论
      */
     @GetMapping("/{id}")
-    public Result getCommentById(@PathVariable Integer id) {
+    public Result getCommentById(@PathVariable Integer id,
+                                 @RequestHeader("Authorization") String token) {
         Comments comment = commentsService.getById(id);
         return comment != null ? Result.success(comment) : Result.error("评论不存在");
     }
@@ -52,7 +54,8 @@ public class CommentsController {
      * 创建一条评论
      */
     @PostMapping
-    public Result addComment(@RequestBody Comments comment) {
+    public Result addComment(@RequestBody Comments comment,
+                             @RequestHeader("Authorization") String token) {
         comment.setCreateTime(LocalDateTime.now());
         boolean saved = commentsService.save(comment);
         return saved ? Result.success("评论成功") : Result.error("评论失败");
@@ -62,7 +65,8 @@ public class CommentsController {
      * 删除评论
      */
     @DeleteMapping("/{id}")
-    public Result deleteComment(@PathVariable Integer id) {
+    public Result deleteComment(@PathVariable Integer id,
+                                @RequestHeader("Authorization") String token) {
         boolean removed = commentsService.removeById(id);
         return removed ? Result.success("删除成功") : Result.error("删除失败");
     }
@@ -71,7 +75,8 @@ public class CommentsController {
      * 更新评论内容
      */
     @PutMapping("/{id}")
-    public Result updateComment(@PathVariable Integer id, @RequestBody String newContent) {
+    public Result updateComment(@PathVariable Integer id, @RequestBody String newContent,
+                                @RequestHeader("Authorization") String token) {
         Comments comment = new Comments();
         comment.setCommentId(id);
         comment.setContent(newContent);

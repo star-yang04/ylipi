@@ -1,5 +1,6 @@
 package com.example.ylipi.service.impl;
 
+import cn.hutool.core.io.FileUtil;
 import com.example.ylipi.entity.Users;
 import com.example.ylipi.mapper.UsersMapper;
 import com.example.ylipi.service.IUsersService;
@@ -8,7 +9,9 @@ import com.example.ylipi.utils.Md5Util;
 import com.example.ylipi.utils.ThreadLocalUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -32,13 +35,14 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     }
 
     @Override
-    public void register(String username, String password,String schoolNumber,String schoolPassword, String userType) {
+    public void register(String username, String password,String schoolNumber,String schoolPassword, String userType,String avatarUrl) {
         //密码加密存入数据库
         String md5String = Md5Util.getMD5String(password);
         String md5String2 = Md5Util.getMD5String(schoolPassword);
         //添加
-        userMapper.add(username,md5String,schoolNumber,md5String2,userType);
+        userMapper.add(username,md5String,schoolNumber,md5String2,userType,avatarUrl);
     }
+
 
     @Override
     public boolean checkSchoolInfo(String schoolNumber, String schoolPassword) {
@@ -89,6 +93,22 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         //Map<String,Object> map = ThreadLocalUtil.get();
         //Integer id = (Integer) map.get("id");
         userMapper.updatePwd(Md5Util.getMD5String(newPwd),userId);
+    }
+
+    @Override
+    public String uploadAvatar(MultipartFile file) throws IOException {
+        // 找到文件上传的位置
+        String filePath="/opt/uploads/avatars/";
+        if(!FileUtil.exist(filePath)){
+            FileUtil.mkdir(filePath);
+        }
+        byte[] bytes=file.getBytes();
+        String fileName =System.currentTimeMillis()+"_"+ file.getOriginalFilename();
+        //String encodeFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8);
+        // 写入文件
+        FileUtil.writeBytes(bytes,filePath+fileName);
+        String avatarUrl="http://115.120.224.202:9993/avatars/"+fileName;
+        return avatarUrl;
     }
 
 

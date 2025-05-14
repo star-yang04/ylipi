@@ -31,7 +31,8 @@ public class AppealsController {
      * 根据指定id获取申诉记录
      */
     @GetMapping("/selectById/{id}")
-    public Result getAppealsById(@PathVariable Integer id) {
+    public Result getAppealsById(@PathVariable Integer id,
+                                 @RequestHeader("Authorization") String token) {
         Appeals appeal = appealsService.getById(id);
         return Result.success(appeal);
     }
@@ -40,7 +41,7 @@ public class AppealsController {
      * 查询所有申诉记录
      */
     @GetMapping("/list")
-    public Result getAllAppeals() {
+    public Result getAllAppeals(@RequestHeader("Authorization") String token) {
         List<Appeals> list = appealsService.list();
         return Result.success(list);
     }
@@ -49,7 +50,8 @@ public class AppealsController {
      * 新增申诉记录
      */
     @PostMapping("/add")
-    public Result addAppeal(@RequestBody Appeals appeal) {
+    public Result addAppeal(@RequestBody Appeals appeal,
+                            @RequestHeader("Authorization") String token) {
         appeal.setCreateTime(LocalDateTime.now());
         boolean saved = appealsService.save(appeal);
         return saved ? Result.success("添加成功") : Result.error("添加失败");
@@ -59,7 +61,8 @@ public class AppealsController {
      * 修改申诉记录
      */
     @PutMapping("/update")
-    public Result updateAppeal(@RequestBody Appeals appeal) {
+    public Result updateAppeal(@RequestBody Appeals appeal,
+                               @RequestHeader("Authorization") String token) {
         boolean updated = appealsService.updateById(appeal);
         return updated ? Result.success("更新成功") : Result.error("更新失败");
     }
@@ -68,7 +71,8 @@ public class AppealsController {
      * 删除申诉记录
      */
     @DeleteMapping("/delete/{id}")
-    public Result deleteAppeal(@PathVariable Integer id) {
+    public Result deleteAppeal(@PathVariable Integer id,
+                               @RequestHeader("Authorization") String token) {
         boolean removed = appealsService.removeById(id);
         return removed ? Result.success("删除成功") : Result.error("删除失败");
     }
@@ -77,7 +81,8 @@ public class AppealsController {
      * 根据用户ID查询申诉记录
      */
     @GetMapping("/user/{userId}")
-    public Result getAppealsByUserId(@PathVariable Integer userId) {
+    public Result getAppealsByUserId(@PathVariable Integer userId,
+                                     @RequestHeader("Authorization") String token) {
         QueryWrapper<Appeals> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("user_id", userId);
         List<Appeals> appealsList = appealsService.list(queryWrapper);
@@ -95,7 +100,8 @@ public class AppealsController {
             @RequestParam(required = false) Integer userId,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String relatedType,
-            @RequestParam(required = false) String content // 模糊搜索
+            @RequestParam(required = false) String content ,// 模糊搜索
+            @RequestHeader("Authorization") String token
     ) {
         Page<Appeals> page = new Page<>(pageNum, pageSize);
         QueryWrapper<Appeals> queryWrapper = new QueryWrapper<>();
@@ -121,7 +127,7 @@ public class AppealsController {
      * 查询各状态申诉数量（如：待处理、已处理等）
      */
     @GetMapping("/statusCount")
-    public Result getAppealStatusCount() {
+    public Result getAppealStatusCount(@RequestHeader("Authorization") String token) {
         List<Map<String, Object>> result = appealsService.listMaps(
                 new QueryWrapper<Appeals>().select("status", "count(*) as count").groupBy("status")
         );
@@ -140,7 +146,8 @@ public class AppealsController {
      * });
      */
     @PatchMapping("/status/{id}")
-    public Result updateAppealStatus(@PathVariable Integer id, @RequestParam String status) {
+    public Result updateAppealStatus(@PathVariable Integer id, @RequestParam String status,
+                                     @RequestHeader("Authorization") String token) {
         Appeals appeal = new Appeals();
         appeal.setAppealId(id);
         appeal.setStatus(status);

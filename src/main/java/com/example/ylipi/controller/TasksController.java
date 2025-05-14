@@ -30,7 +30,8 @@ public class TasksController {
      * 根据任务 ID 查询任务详情
      */
     @GetMapping("/{id}")
-    public Result getTaskById(@PathVariable Integer id) {
+    public Result getTaskById(@PathVariable Integer id,
+                              @RequestHeader("Authorization") String token) {
         Tasks task = tasksService.getById(id);
         return task != null ? Result.success(task) : Result.error("任务不存在");
     }
@@ -40,7 +41,8 @@ public class TasksController {
      */
     @GetMapping("/list")
     public Result listTasks(@RequestParam(defaultValue = "1") int pageNum,
-                            @RequestParam(defaultValue = "10") int pageSize) {
+                            @RequestParam(defaultValue = "10") int pageSize,
+                            @RequestHeader("Authorization") String token) {
         Page<Tasks> page = new Page<>(pageNum, pageSize);
         tasksService.page(page, new QueryWrapper<>());
         return Result.success(page);
@@ -50,7 +52,8 @@ public class TasksController {
      * 新增任务
      */
     @PostMapping
-    public Result addTask(@RequestBody Tasks task) {
+    public Result addTask(@RequestBody Tasks task,
+                          @RequestHeader("Authorization") String token) {
         task.setCreateTime(LocalDateTime.now());
         task.setUpdateTime(LocalDateTime.now());
         boolean saved = tasksService.save(task);
@@ -61,7 +64,8 @@ public class TasksController {
      * 更新任务
      */
     @PutMapping
-    public Result updateTask(@RequestBody Tasks task) {
+    public Result updateTask(@RequestBody Tasks task,
+                             @RequestHeader("Authorization") String token) {
         task.setUpdateTime(LocalDateTime.now());
         boolean updated = tasksService.updateById(task);
         return updated ? Result.success("任务更新成功") : Result.error("更新失败");
@@ -71,7 +75,8 @@ public class TasksController {
      * 删除任务
      */
     @DeleteMapping("/{id}")
-    public Result deleteTask(@PathVariable Integer id) {
+    public Result deleteTask(@PathVariable Integer id,
+                             @RequestHeader("Authorization") String token) {
         boolean removed = tasksService.removeById(id);
         return removed ? Result.success("删除成功") : Result.error("删除失败");
     }
@@ -80,7 +85,9 @@ public class TasksController {
      * 修改任务状态
      */
     @PatchMapping("/status/{id}")
-    public Result updateTaskStatus(@PathVariable Integer id, @RequestParam String status) {
+    public Result updateTaskStatus(@PathVariable Integer id,
+                                   @RequestParam String status,
+                                   @RequestHeader("Authorization") String token) {
         Tasks task = new Tasks();
         task.setTaskId(id);
         task.setStatus(status);
@@ -93,7 +100,8 @@ public class TasksController {
      * 根据发布者 ID 查询其发布的所有任务
      */
     @GetMapping("/publisher/{publisherId}")
-    public Result getTasksByPublisher(@PathVariable Integer publisherId) {
+    public Result getTasksByPublisher(@PathVariable Integer publisherId,
+                                      @RequestHeader("Authorization") String token) {
         QueryWrapper<Tasks> wrapper = new QueryWrapper<>();
         wrapper.eq("publisher_id", publisherId);
         List<Tasks> tasks = tasksService.list(wrapper);
